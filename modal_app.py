@@ -233,7 +233,6 @@ except Exception:
     volumes={"/cache": hf_cache_volume},
     timeout=3600,  # 1 hour timeout
     secrets=[hf_secret] if hf_secret else [],  # Optional HF token
-    working_dir="/workspace",
 )
 def upscale_video(
     video_bytes: bytes,
@@ -263,7 +262,8 @@ def upscale_video(
     Returns:
         bytes: Upscaled video file as bytes
     """
-    # Add workspace to path for imports
+    # Change to workspace directory and add to path for imports
+    os.chdir("/workspace")
     if "/workspace" not in sys.path:
         sys.path.insert(0, "/workspace")
     
