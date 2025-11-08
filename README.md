@@ -98,28 +98,28 @@ cd ComfyUI/custom_nodes
 git clone https://github.com/numz/ComfyUI-SeedVR2_VideoUpscaler.git
 ```
 
-2. Install the required dependencies:
-
-load venv and :
+2. Install the required dependencies using `uv`:
 
 ```bash
-pip install -r ComfyUI-SeedVR2_VideoUpscaler/requirements.txt
+cd ComfyUI-SeedVR2_VideoUpscaler
+uv sync
 ```
 
-install flash_attn/triton, 6% faster on process, not a mandatory.
+This will automatically create a virtual environment and install all dependencies from `pyproject.toml`.
+
+**Optional:** Install flash_attn/triton for ~6% faster processing (not mandatory):
 
 ```bash
-pip install flash_attn
-pip install triton
+uv pip install flash_attn triton
 ```
 
-or
+For Windows embedded Python:
 
 ```bash
-python_embeded\python.exe -m pip install -r flash_attn
+python_embeded\python.exe -m pip install flash_attn triton
 ```
 
-check here from https://github.com/loscrossos/lib_flashattention/releases and https://github.com/woct0rdho/triton-windows
+Check here for Windows-specific builds: https://github.com/loscrossos/lib_flashattention/releases and https://github.com/woct0rdho/triton-windows
 
 3. Models
 
@@ -191,37 +191,34 @@ You can also run SeedVR2 Video Upscaler as a standalone Multi-GPU support script
 ### Prerequisites for Standalone
 
 1. Need python 3.12.9 (I haven't test with other version, must works)
-2. **clone the repository**
+2. **Install `uv`** (if not already installed):
 
+```bash
+# On Linux/macOS
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# On Windows
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
+
+3. **Clone the repository**
+
+```bash
 git clone https://github.com/numz/ComfyUI-SeedVR2_VideoUpscaler SeedVR2_VideoUpscaler
 cd SeedVR2_VideoUpscaler
 ```
 
-3. **install python and create env** prefer python 3.12.9
+4. **Create virtual environment and install dependencies** using `uv`:
 
+```bash
+# uv will automatically use Python 3.12.9 from .python-version
+uv sync
+
+# Install PyTorch with CUDA support (required for standalone)
+uv pip install torch==2.6.0 torchvision==0.21.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cu126
 ```
 
-conda create -n seedvr python=3.12.9
-conda activate seedvr
-
-or
-
-python -m venv venv
-
-windows :
-.\venv\Scripts\activate
-
-linux :
-source ./venv/bin/activate
-```
-
-2. **Install requirements** for standalone operation:
-
-```
-pip install torch==2.6.0 torchvision==0.21.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cu126
-pip install -r requirements.txt
-```
+The `uv sync` command will automatically create a virtual environment and install all dependencies from `pyproject.toml`.
 
 ### Comandline Usage
 
@@ -270,14 +267,15 @@ options:
 
 Examples :
 
-```
+```bash
 # Upscale 18 frames as png
-python inference_cli.py --video_path "MAIN.mp4" --resolution 1072 --batch_size 9 --model seedvr2_ema_3b_fp8_e4m3fn.safetensors --model_dir ./models\SEEDVR2 --load_cap 18 --output "C:\Users\Emmanuel\Downloads\test_upscale" --output_format png --preserve_vram
+uv run inference_cli.py --video_path "MAIN.mp4" --resolution 1072 --batch_size 9 --model seedvr2_ema_3b_fp8_e4m3fn.safetensors --model_dir ./models\SEEDVR2 --load_cap 18 --output "C:\Users\Emmanuel\Downloads\test_upscale" --output_format png --preserve_vram
 
 # Upscale 1000 frames on 4 GPU, each GPU will receive 250 frames and will process them 50 by 50
-python inference_cli.py --video_path "MAIN.mp4" --batch_size 50 --load_cap 1000 --output ".\outputs\test_upscale.mp4" --cuda_device 0,1,2,3
-
+uv run inference_cli.py --video_path "MAIN.mp4" --batch_size 50 --load_cap 1000 --output ".\outputs\test_upscale.mp4" --cuda_device 0,1,2,3
 ```
+
+**Note:** You can also use `python inference_cli.py` if you have activated the virtual environment manually.
 
 ## 📊 Benchmarks
 

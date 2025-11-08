@@ -1,3 +1,10 @@
+# DEPRECATED: This file is kept for backward compatibility only.
+# Dependencies are now managed in pyproject.toml.
+# Use `uv sync` to install dependencies from pyproject.toml.
+#
+# For legacy pip installations, you can still use this file, but it's recommended
+# to migrate to uv and use pyproject.toml as the source of truth.
+
 einops                   # Tensor operations
 omegaconf>=2.3.0                # Configuration system.
 diffusers>=0.34.0                # Diffusers

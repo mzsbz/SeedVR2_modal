@@ -32,6 +32,9 @@ Documentation = "https://www.youtube.com/@AInVFX"
 "Bug Tracker" = "https://github.com/numz/ComfyUI-SeedVR2_VideoUpscaler/issues"
 "Forum" = "https://github.com/numz/ComfyUI-SeedVR2_VideoUpscaler/discussions"
 
+[tool.uv]
+dev-dependencies = []
+
 [tool.comfy]
 PublisherId = "ainvfx"
 DisplayName = "ComfyUI-SeedVR2_VideoUpscaler"

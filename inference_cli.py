@@ -145,8 +145,10 @@ def save_frames_to_video(frames_tensor, output_path, fps=30.0, debug=False):
     if debug:
         print(f"🎬 Saving {frames_tensor.shape[0]} frames to video: {output_path}")
     
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    # Ensure output directory exists (only if path contains a directory)
+    output_dir = os.path.dirname(output_path)
+    if output_dir:  # Only create directory if path contains a directory component
+        os.makedirs(output_dir, exist_ok=True)
     
     # Convert tensor to numpy and denormalize
     frames_np = frames_tensor.cpu().numpy()
@@ -405,11 +407,30 @@ def main():
             if args.debug:
                 print(f"🔄 Save time: {time.time() - save_start:.2f}s")
         else:
-            # Save video
+            # Save video - handle both file paths and directory paths
+            output_path = args.output
+            if output_path:
+                # Check if output_path looks like a directory (no extension or ends with /)
+                output_path_obj = Path(output_path)
+                if not output_path_obj.suffix or output_path.endswith(os.sep) or output_path.endswith('/'):
+                    # It's a directory, generate filename inside it
+                    os.makedirs(output_path, exist_ok=True)
+                    video_name = Path(args.video_path).stem + "_upscaled.mp4"
+                    output_path = str(Path(output_path) / video_name)
+                else:
+                    # It's a file path, ensure parent directory exists
+                    output_dir = os.path.dirname(output_path)
+                    if output_dir:
+                        os.makedirs(output_dir, exist_ok=True)
+            else:
+                # Auto-generate output path
+                video_name = Path(args.video_path).stem + "_upscaled.mp4"
+                output_path = str(Path(args.video_path).parent / video_name)
+            
             if args.debug:
-                print(f"💾 Saving upscaled video to: {args.output}")
+                print(f"💾 Saving upscaled video to: {output_path}")
             save_start = time.time()
-            save_frames_to_video(result, args.output, original_fps, args.debug)
+            save_frames_to_video(result, output_path, original_fps, args.debug)
             if args.debug:
                 print(f"🔄 Save time: {time.time() - save_start:.2f}s")
         
@@ -418,7 +439,7 @@ def main():
         if args.output_format == "png":
             print(f"📁 PNG frames saved in directory: {args.output}")
         else:
-            print(f"📁 Output saved to video: {args.output}")
+            print(f"📁 Output saved to video: {output_path}")
         print(f"🕒 Total processing time: {total_time:.2f}s")
         print(f"⚡ Average FPS: {len(frames_tensor) / generation_time:.2f} frames/sec")
         
