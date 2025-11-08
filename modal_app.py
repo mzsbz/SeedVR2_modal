@@ -220,19 +220,15 @@ def save_frames_to_video_bytes(frames_tensor, fps: float = 30.0, debug: bool = F
             os.remove(tmp_path)
 
 
-# Try to get HF secret if it exists (optional)
-hf_secret = None
-try:
-    hf_secret = modal.Secret.from_name("hf-secret")
-except Exception:
-    pass  # Secret doesn't exist, that's fine
-
 @app.function(
     image=image,
     gpu="A10G",  # Use A10G for good performance, can be changed to T4 or A100
     volumes={"/cache": hf_cache_volume},
     timeout=3600,  # 1 hour timeout
-    secrets=[hf_secret] if hf_secret else [],  # Optional HF token
+    # Note: secrets parameter omitted - not needed for public repos
+    # If you need to access private HuggingFace repos, create a secret named "hf-secret"
+    # and uncomment the line below:
+    # secrets=[modal.Secret.from_name("hf-secret")],
 )
 def upscale_video(
     video_bytes: bytes,
