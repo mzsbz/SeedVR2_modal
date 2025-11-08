@@ -7,15 +7,29 @@ Extracted from: seedvr2.py (line 968-1015)
 
 import os
 from torchvision.datasets.utils import download_url
-try:
-    import folder_paths
-    # Configuration des chemins
-    base_cache_dir = os.path.join(folder_paths.models_dir, "SEEDVR2")
 
-    # S'assurer que le dossier de cache existe
-    folder_paths.add_model_folder_path("seedvr2", os.path.join(folder_paths.models_dir, "SEEDVR2"))
-except:
-    base_cache_dir = "./seedvr2_models"
+# Detect Modal environment
+def _get_base_cache_dir():
+    """Get base cache directory, checking for Modal environment first"""
+    # Check if running in Modal (volume mounted at /cache)
+    if os.path.exists("/cache"):
+        modal_cache_dir = "/cache/seedvr2_models"
+        os.makedirs(modal_cache_dir, exist_ok=True)
+        return modal_cache_dir
+    
+    # Try ComfyUI folder_paths
+    try:
+        import folder_paths
+        base_cache_dir = os.path.join(folder_paths.models_dir, "SEEDVR2")
+        folder_paths.add_model_folder_path("seedvr2", os.path.join(folder_paths.models_dir, "SEEDVR2"))
+        return base_cache_dir
+    except:
+        pass
+    
+    # Default fallback
+    return "./seedvr2_models"
+
+base_cache_dir = _get_base_cache_dir()
 
 def download_weight(model, model_dir=None):
     """
